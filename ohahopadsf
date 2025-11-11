@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
-local Lighting = game:GetService("Lighting")
+local Lighting = game:GetService("Lighting") -- Added Lighting service
 
 local player = Players.LocalPlayer
 
@@ -130,7 +130,7 @@ showInstantStealPrompt(function(enableInstantSteal)
 
 	local frame = Instance.new("Frame")
 	frame.Parent = gui
-	frame.Size = UDim2.new(0, 420, 0, 260)
+	frame.Size = UDim2.new(0, 420, 0, 290)
 	frame.Position = UDim2.new(0.5, 0, 0.5, 0)
 	frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
@@ -239,6 +239,21 @@ showInstantStealPrompt(function(enableInstantSteal)
 	chooseBaseBtn.Text = "Choose Base"
 	local baseCorner = Instance.new("UICorner", chooseBaseBtn)
 	baseCorner.CornerRadius = UDim.new(0, 12)
+	
+	-- === NEW BUTTON ===
+	-- Labubu Finder button
+	local labubuFinderBtn = Instance.new("TextButton")
+	labubuFinderBtn.Parent = frame
+	labubuFinderBtn.Size = UDim2.new(0, 200, 0, 50)
+	labubuFinderBtn.Position = UDim2.new(0.5, -100, 0, 190) -- Positioned below "Choose Base"
+	labubuFinderBtn.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+	labubuFinderBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	labubuFinderBtn.Font = Enum.Font.GothamBold
+	labubuFinderBtn.TextSize = 20
+	labubuFinderBtn.Text = "Labubu Finder"
+	local charCorner = Instance.new("UICorner", labubuFinderBtn)
+	charCorner.CornerRadius = UDim.new(0, 12)
+	-- === END NEW BUTTON ===
 
 	-- Central bases table (used by auto-detect and selector)
 	local bases = {
@@ -325,149 +340,148 @@ showInstantStealPrompt(function(enableInstantSteal)
 		end
 	end)
 
-	-- Base Selector GUI (creates tracers and lets you pick)
-	chooseBaseBtn.MouseButton1Click:Connect(function()
-		local baseGui = Instance.new("ScreenGui")
-		baseGui.Name = "BaseSelectorGui"
-		baseGui.Parent = player:WaitForChild("PlayerGui")
+-- Base Selector GUI (creates tracers and lets you pick)
+chooseBaseBtn.MouseButton1Click:Connect(function()
+	local baseGui = Instance.new("ScreenGui")
+	baseGui.Name = "BaseSelectorGui"
+	baseGui.Parent = player:WaitForChild("PlayerGui")
 
-		local baseFrame = Instance.new("Frame")
-		baseFrame.Parent = baseGui
-		baseFrame.Size = UDim2.new(0, 300, 0, 450)
-		baseFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-		baseFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-		baseFrame.BackgroundColor3 = Color3.fromRGB(50,50,50)
-		baseFrame.BackgroundTransparency = 0.55
-		baseFrame.BorderSizePixel = 0
+	local baseFrame = Instance.new("Frame")
+	baseFrame.Parent = baseGui
+	baseFrame.Size = UDim2.new(0, 320, 0, 470)
+	baseFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	baseFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	baseFrame.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	baseFrame.BackgroundTransparency = 0.55
+	baseFrame.BorderSizePixel = 0
 
-		local corner = Instance.new("UICorner", baseFrame)
-		corner.CornerRadius = UDim.new(0, 20)
+	local corner = Instance.new("UICorner", baseFrame)
+	corner.CornerRadius = UDim.new(0, 20)
 
-		local gradient = Instance.new("UIGradient", baseFrame)
-		gradient.Color = ColorSequence.new{
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(255,180,130)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(90,140,255))
-		}
-		gradient.Rotation = 45
+	local gradient = Instance.new("UIGradient", baseFrame)
+	gradient.Color = ColorSequence.new{
+		ColorSequenceKeypoint.new(0, Color3.fromRGB(255,180,130)),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(90,140,255))
+	}
+	gradient.Rotation = 45
 
-		local title = Instance.new("TextLabel")
-		title.Parent = baseFrame
-		title.Text = "Select Base"
-		title.Size = UDim2.new(1,0,0,40)
-		title.Position = UDim2.new(0,0,0,10)
-		title.TextColor3 = Color3.fromRGB(255,255,255)
-		title.Font = Enum.Font.GothamBold
-		title.TextSize = 24
-		title.BackgroundTransparency = 1
+	local title = Instance.new("TextLabel")
+	title.Parent = baseFrame
+	title.Text = "Select Base"
+	title.Size = UDim2.new(1,0,0,40)
+	title.Position = UDim2.new(0,0,0,10)
+	title.TextColor3 = Color3.fromRGB(255,255,255)
+	title.Font = Enum.Font.GothamBold
+	title.TextSize = 24
+	title.BackgroundTransparency = 1
 
-		local baseColors = {
-			Color3.fromRGB(255,0,0),
-			Color3.fromRGB(0,255,0),
-			Color3.fromRGB(0,0,255),
-			Color3.fromRGB(255,255,0),
-			Color3.fromRGB(255,0,255),
-			Color3.fromRGB(0,255,255),
-			Color3.fromRGB(128,0,128),
-			Color3.fromRGB(255,128,0)
-		}
+	local baseColors = {
+		Color3.fromRGB(255,0,0),
+		Color3.fromRGB(0,255,0),
+		Color3.fromRGB(0,0,255),
+		Color3.fromRGB(255,255,0),
+		Color3.fromRGB(255,0,255),
+		Color3.fromRGB(0,255,255),
+		Color3.fromRGB(128,0,128),
+		Color3.fromRGB(255,128,0)
+	}
 
-		local tracerObjects = {}
+	local tracerObjects = {}
 
-		local function createTracer(basePosition,color)
-			local part = Instance.new("Part")
-			part.Anchored = true
-			part.CanCollide = false
-			part.Size = Vector3.new(0.2,0.2,1)
-			part.Color = color
-			part.Material = Enum.Material.Neon
-			part.Transparency = 0
-			part.Parent = Workspace
-			table.insert(tracerObjects,{part=part,target=basePosition})
-		end
+	local function createTracer(basePosition,color)
+		local part = Instance.new("Part")
+		part.Anchored = true
+		part.CanCollide = false
+		part.Size = Vector3.new(0.2,0.2,1)
+		part.Color = color
+		part.Material = Enum.Material.Neon
+		part.Transparency = 0
+		part.Parent = Workspace
+		table.insert(tracerObjects,{part=part,target=basePosition})
+	end
 
-		for i, baseInfo in ipairs(bases) do
-			createTracer(baseInfo[2],baseColors[i])
-		end
+	for i, baseInfo in ipairs(bases) do
+		createTracer(baseInfo[2],baseColors[i])
+	end
 
-		local tracerConnection
-		tracerConnection = RunService.RenderStepped:Connect(function()
-			if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-				local hrpPos = player.Character.HumanoidRootPart.Position
-				for _, t in pairs(tracerObjects) do
-					if t.part and t.target then
-						local distance = (hrpPos - t.target).Magnitude
-						-- avoid zero-size
-						if distance < 0.5 then distance = 0.5 end
-						t.part.Size = Vector3.new(0.2,0.2,distance)
-						t.part.CFrame = CFrame.new((hrpPos + t.target)/2, t.target) * CFrame.new(0,0,-distance/2)
-					end
+	local tracerConnection
+	tracerConnection = RunService.RenderStepped:Connect(function()
+		if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+			local hrpPos = player.Character.HumanoidRootPart.Position
+			for _, t in pairs(tracerObjects) do
+				if t.part and t.target then
+					local distance = (hrpPos - t.target).Magnitude
+					if distance < 0.5 then distance = 0.5 end
+					t.part.Size = Vector3.new(0.2,0.2,distance)
+					t.part.CFrame = CFrame.new((hrpPos + t.target)/2, t.target) * CFrame.new(0,0,-distance/2)
 				end
 			end
-		end)
-
-		local legendFrame = Instance.new("Frame")
-		legendFrame.Parent = baseFrame
-		legendFrame.Size = UDim2.new(0,120,0,220)
-		legendFrame.Position = UDim2.new(1,10,0,50)
-		legendFrame.BackgroundColor3 = Color3.fromRGB(40,40,40)
-		legendFrame.BackgroundTransparency = 0.4
-		local legendCorner = Instance.new("UICorner", legendFrame)
-		legendCorner.CornerRadius = UDim.new(0,10)
-
-		local padding = 10
-		for i, baseInfo in ipairs(bases) do
-			local colorLabel = Instance.new("TextLabel")
-			colorLabel.Parent = legendFrame
-			colorLabel.Size = UDim2.new(0,100,0,20)
-			colorLabel.Position = UDim2.new(0,padding,0,padding + (i-1)*25)
-			colorLabel.BackgroundColor3 = baseColors[i]
-			colorLabel.BackgroundTransparency = 0.1
-			colorLabel.Text = "  "..baseInfo[1]
-			colorLabel.TextColor3 = Color3.fromRGB(255,255,255)
-			colorLabel.Font = Enum.Font.Gotham
-			colorLabel.TextSize = 14
-			colorLabel.TextXAlignment = Enum.TextXAlignment.Left
-		end
-
-		for i, info in ipairs(bases) do
-			local btn = Instance.new("TextButton")
-			btn.Parent = baseFrame
-			btn.Size = UDim2.new(0,200,0,40)
-			btn.Position = UDim2.new(0.5,-100,0,60+(i-1)*50)
-			btn.BackgroundColor3 = Color3.fromRGB(80,80,80)
-			btn.TextColor3 = Color3.fromRGB(255,255,255)
-			btn.Font = Enum.Font.Gotham
-			btn.TextSize = 18
-			btn.Text = info[1]
-			local btnCorner = Instance.new("UICorner", btn)
-			btnCorner.CornerRadius = UDim.new(0,12)
-
-			btn.MouseButton1Click:Connect(function()
-				-- set base positions to the chosen base
-				basePositions = {info[2],info[3]}
-				-- update the current base label
-				baseLabel.Text = "Current Base: " .. info[1]
-				-- clean up tracer parts and connection
-				for _, t in pairs(tracerObjects) do
-					if t.part then
-						t.part:Destroy()
-					end
-				end
-				tracerObjects = {}
-				if tracerConnection and tracerConnection.Disconnect then
-					tracerConnection:Disconnect()
-				elseif tracerConnection and tracerConnection.Connected then
-					tracerConnection:Disconnect()
-				end
-				-- teleport player to the first coordinate of the selected base
-				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-					player.Character.HumanoidRootPart.CFrame = CFrame.new(info[2])
-				end
-				-- remove the base GUI
-				baseGui:Destroy()
-			end)
 		end
 	end)
+
+	local legendFrame = Instance.new("Frame")
+	legendFrame.Parent = baseFrame
+	legendFrame.Size = UDim2.new(0,140,0,240)
+	legendFrame.Position = UDim2.new(1,10,0,50)
+	legendFrame.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	legendFrame.BackgroundTransparency = 0.4
+	local legendCorner = Instance.new("UICorner", legendFrame)
+	legendCorner.CornerRadius = UDim.new(0,10)
+
+	local padding = 10
+	for i, baseInfo in ipairs(bases) do
+		local colorLabel = Instance.new("TextLabel")
+		colorLabel.Parent = legendFrame
+		colorLabel.Size = UDim2.new(0,120,0,25)
+		colorLabel.Position = UDim2.new(0,padding,0,padding + (i-1)*30)
+		colorLabel.BackgroundColor3 = baseColors[i]
+		colorLabel.BackgroundTransparency = 0.1
+		colorLabel.Text = baseInfo[1]
+		colorLabel.TextColor3 = Color3.fromRGB(255,255,255)
+		colorLabel.Font = Enum.Font.Gotham
+		colorLabel.TextSize = 14
+		colorLabel.TextXAlignment = Enum.TextXAlignment.Left
+		colorLabel.TextYAlignment = Enum.TextYAlignment.Center
+		colorLabel.TextScaled = true
+	end
+
+	for i, info in ipairs(bases) do
+		local btn = Instance.new("TextButton")
+		btn.Parent = baseFrame
+		btn.Size = UDim2.new(0,200,0,40)
+		btn.Position = UDim2.new(0.5,-100,0,60+(i-1)*50)
+		btn.BackgroundColor3 = Color3.fromRGB(80,80,80)
+		btn.TextColor3 = Color3.fromRGB(255,255,255)
+		btn.Font = Enum.Font.Gotham
+		btn.TextSize = 18
+		btn.Text = info[1]
+		local btnCorner = Instance.new("UICorner", btn)
+		btnCorner.CornerRadius = UDim.new(0,12)
+
+		btn.MouseButton1Click:Connect(function()
+			-- set base positions to the chosen base
+			basePositions = {info[2],info[3]}
+			-- update the current base label
+			baseLabel.Text = "Current Base: " .. info[1]
+			-- clean up tracer parts and connection
+			for _, t in pairs(tracerObjects) do
+				if t.part then t.part:Destroy() end
+			end
+			tracerObjects = {}
+			if tracerConnection then
+				tracerConnection:Disconnect()
+				tracerConnection = nil
+			end
+			-- teleport player to the first coordinate of the selected base
+			if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+				player.Character.HumanoidRootPart.CFrame = CFrame.new(info[2])
+			end
+			-- remove the base GUI
+			baseGui:Destroy()
+		end)
+	end
+end)
+
 
 	--// Re-detect on respawn (runs once after respawn)
 	player.CharacterAdded:Connect(function()
@@ -477,5 +491,265 @@ showInstantStealPrompt(function(enableInstantSteal)
 			basePositions = {nearest[2], nearest[3]}
 			baseLabel.Text = "Current Base: " .. nearest[1]
 		end
+	end)
+	
+	-- === NEW CLICK EVENT ===
+	-- Character Finder GUI dynamic load
+	labubuFinderBtn.MouseButton1Click:Connect(function()
+		-- load the Character Finder GUI dynamically
+		local CharFinderScript = [[
+--[[ 
+    Character Finder GUI with Rarity (Styled & Auto-Updating every 5s)
+    - Bases 1-8, NPCPads 1-10
+    - Shows CharacterId + Rarity
+    - Buttons styled like frame, slightly less transparent
+    - Sorted by rarity
+    - Click to teleport
+    - Scrollable list
+    - Blur + gradient background, draggable, closable
+]]
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local workspace = game.Workspace
+local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
+
+-- GUI Setup
+local gui = Instance.new("ScreenGui")
+gui.Name = "CharacterFinderStyledGui"
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Blur Effect
+local blur = Instance.new("BlurEffect")
+blur.Size = 0
+blur.Parent = Lighting
+
+-- Background frame with gradient
+local bgFrame = Instance.new("Frame")
+bgFrame.Parent = gui
+bgFrame.Size = UDim2.new(1, 0, 1, 0)
+bgFrame.BackgroundTransparency = 1
+local bgGradient = Instance.new("UIGradient", bgFrame)
+bgGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 160, 130)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(100, 150, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 220, 200))
+}
+bgGradient.Rotation = 45
+
+-- Main frame (bigger height)
+local frame = Instance.new("Frame")
+frame.Parent = gui
+frame.Size = UDim2.new(0, 420, 0, 500) -- increased height
+frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.BackgroundTransparency = 0.55
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true
+
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 20)
+
+local gradient = Instance.new("UIGradient", frame)
+gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 180, 130)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(90, 140, 255))
+}
+gradient.Rotation = 45
+
+-- Close button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Parent = frame
+closeBtn.Text = "X"
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -40, 0, 10)
+closeBtn.BackgroundTransparency = 0.8
+closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 20
+local closeCorner = Instance.new("UICorner", closeBtn)
+closeCorner.CornerRadius = UDim.new(1, 0)
+
+local tooltip = Instance.new("TextLabel")
+tooltip.Parent = closeBtn
+tooltip.Text = "Close"
+tooltip.BackgroundTransparency = 1
+tooltip.TextColor3 = Color3.fromRGB(255, 255, 255)
+tooltip.TextSize = 12
+tooltip.Position = UDim2.new(-0.3, 0, 1, 0)
+tooltip.Visible = false
+
+closeBtn.MouseEnter:Connect(function()
+    closeBtn.BackgroundTransparency = 0.5
+    tooltip.Visible = true
+end)
+closeBtn.MouseLeave:Connect(function()
+    closeBtn.BackgroundTransparency = 0.8
+    tooltip.Visible = false
+end)
+closeBtn.MouseButton1Click:Connect(function()
+    gui:Destroy()
+    blur:Destroy()
+end)
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Parent = frame
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0, 0, 0, 10)
+title.BackgroundTransparency = 1
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 24
+title.Text = "Character Finder"
+
+-- Scrollable list for Characters
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(1, -20, 1, -80)
+scrollingFrame.Position = UDim2.new(0, 10, 0, 60)
+scrollingFrame.BackgroundTransparency = 1
+scrollingFrame.ScrollBarThickness = 6
+scrollingFrame.CanvasSize = UDim2.new(0,0,0,0)
+scrollingFrame.Parent = frame
+
+local uiListLayout = Instance.new("UIListLayout")
+uiListLayout.Parent = scrollingFrame
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+uiListLayout.Padding = UDim.new(0,5)
+
+-- Rarity ranking
+local rarityOrder = {
+    Secret = 1,
+    God = 2,
+    Mythic = 3,
+    Legendary = 4,
+    Epic = 5,
+    Rare = 6,
+    Uncommon = 7,
+    Common = 8
+}
+
+local charactersData = {}
+
+local function updateCanvasSize()
+    scrollingFrame.CanvasSize = UDim2.new(0,0,0, uiListLayout.AbsoluteContentSize.Y + 10)
+end
+
+local function rebuildGUI()
+    for _, child in ipairs(scrollingFrame:GetChildren()) do
+        if child:IsA("TextButton") then
+            child:Destroy()
+        end
+    end
+
+    table.sort(charactersData, function(a,b)
+        return (rarityOrder[a.Rarity] or 9) < (rarityOrder[b.Rarity] or 9)
+    end)
+
+    for _, data in ipairs(charactersData) do
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(1, -10, 0, 50)
+        btn.BackgroundColor3 = frame.BackgroundColor3
+        btn.BackgroundTransparency = 0.35
+        btn.TextColor3 = Color3.fromRGB(255,255,255)
+        btn.Font = Enum.Font.Gotham
+        btn.TextSize = 18
+        btn.Text = data.CharacterId .. "\n" .. data.Rarity
+        btn.TextWrapped = true
+        btn.TextScaled = false
+        btn.TextXAlignment = Enum.TextXAlignment.Center
+        btn.TextYAlignment = Enum.TextYAlignment.Center
+        btn.Parent = scrollingFrame
+
+        local btnCorner = Instance.new("UICorner", btn)
+        btnCorner.CornerRadius = UDim.new(0,12)
+
+        btn.MouseButton1Click:Connect(function()
+            if data.Pad and data.Pad:IsDescendantOf(workspace) then
+                if player.Character and player.Character.PrimaryPart then
+                    player.Character:SetPrimaryPartCFrame(data.Pad:GetPivot())
+                end
+            end
+        end)
+    end
+
+    updateCanvasSize()
+end
+
+local function scanPad(pad)
+    local character = pad:FindFirstChild("Character")
+    if character then
+        local rarity = "Unknown"
+        local charInfo = character:FindFirstChild("CharacterInfo")
+        if charInfo then
+            local frameObj = charInfo:FindFirstChild("Frame")
+            if frameObj then
+                local rarityLabel = frameObj:FindFirstChild("Rarity")
+                if rarityLabel and rarityLabel:IsA("TextLabel") then
+                    rarity = rarityLabel.Text
+                end
+            end
+        end
+
+        for _, data in ipairs(charactersData) do
+            if data.Character == character then return end
+        end
+
+        table.insert(charactersData,{Character=character,Pad=pad,CharacterId=character:GetAttribute("CharacterId") or "Unknown", Rarity=rarity})
+    end
+end
+
+local function scanNPCPads(npcPads)
+    for _, pad in ipairs(npcPads:GetChildren()) do
+        if pad:IsA("Folder") or pad:IsA("Model") then
+            scanPad(pad)
+            pad.ChildAdded:Connect(function(child)
+                if child.Name=="Character" then scanPad(pad) end
+            end)
+        end
+    end
+    npcPads.ChildAdded:Connect(function(newPad)
+        scanPad(newPad)
+        newPad.ChildAdded:Connect(function(child)
+            if child.Name=="Character" then scanPad(newPad) end
+        end)
+    end)
+end
+
+local function scanBases()
+    local map = workspace:FindFirstChild("Map")
+    if not map then return end
+    local basesFolder = map:FindFirstChild("Bases")
+    if not basesFolder then return end
+    for i=1,8 do
+        local base = basesFolder:FindFirstChild(tostring(i))
+        if base then
+            local important = base:FindFirstChild("Important")
+            if important then
+                local npcPads = important:FindFirstChild("NPCPads")
+                if npcPads then
+                    scanNPCPads(npcPads)
+                end
+            end
+        end
+    end
+end
+
+-- Auto-update every 5 seconds
+while true do
+    charactersData = {}
+    scanBases()
+    rebuildGUI()
+    wait(5)
+end
+		
+		local func = loadstring(CharFinderScript)
+		func()
 	end)
 end)
