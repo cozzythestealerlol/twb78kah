@@ -203,6 +203,17 @@ showInstantStealPrompt(function(enableInstantSteal)
 	statusLabel.BackgroundTransparency = 1
 	statusLabel.Text = "Ready To Use!"
 
+	-- Small Current Base label beneath status
+	local baseLabel = Instance.new("TextLabel")
+	baseLabel.Parent = frame
+	baseLabel.Size = UDim2.new(1, 0, 0, 20)
+	baseLabel.Position = UDim2.new(0, 0, 1, -18) -- slightly under the status area
+	baseLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	baseLabel.Font = Enum.Font.Gotham
+	baseLabel.TextSize = 14
+	baseLabel.BackgroundTransparency = 1
+	baseLabel.Text = "Current Base: Unknown"
+
 	-- Action button
 	local actionBtn = Instance.new("TextButton")
 	actionBtn.Parent = frame
@@ -229,7 +240,48 @@ showInstantStealPrompt(function(enableInstantSteal)
 	local baseCorner = Instance.new("UICorner", chooseBaseBtn)
 	baseCorner.CornerRadius = UDim.new(0, 12)
 
-	local basePositions = {Vector3.new(-124.87,4.12,-122.90), Vector3.new(-125.94,3.51,-171.55)}
+	-- Central bases table (used by auto-detect and selector)
+	local bases = {
+		{"Base 1", Vector3.new(-124.87, 4.12, -122.90), Vector3.new(-125.94, 3.51, -171.55)},
+		{"Base 2", Vector3.new(-5.61, 4.20, -126.03), Vector3.new(-5.52, 3.85, -171.45)},
+		{"Base 3", Vector3.new(114.14, 2.93, -123.08), Vector3.new(114.14, 2.93, -170.89)},
+		{"Base 4", Vector3.new(234.41, 4.33, -124.25), Vector3.new(234.41, 4.33, -169.55)},
+		{"Base 5", Vector3.new(-124.87,4.12,17.2), Vector3.new(-125.94,3.51,65.64)},
+		{"Base 6", Vector3.new(-5.61,4.20,17.2), Vector3.new(-5.52,3.85,65.64)},
+		{"Base 7", Vector3.new(114.14,2.93,17.2), Vector3.new(114.14,2.93,65.64)},
+		{"Base 8", Vector3.new(234.41,4.33,17.2), Vector3.new(234.41,4.33,65.64)}
+	}
+
+	-- Helper: find nearest base by first coordinate
+	local function getNearestBase()
+		local char = player.Character or player.CharacterAdded:Wait()
+		local hrp = char and char:FindFirstChild("HumanoidRootPart")
+		if not hrp then
+			hrp = char:WaitForChild("HumanoidRootPart", 5)
+			if not hrp then
+				return bases[1] -- fallback
+			end
+		end
+		local pos = hrp.Position
+
+		local closestBase = nil
+		local shortestDist = math.huge
+
+		for _, baseInfo in ipairs(bases) do
+			local dist = (pos - baseInfo[2]).Magnitude
+			if dist < shortestDist then
+				shortestDist = dist
+				closestBase = baseInfo
+			end
+		end
+
+		return closestBase or bases[1]
+	end
+
+	-- initialize basePositions from nearest base
+	local nearest = getNearestBase()
+	local basePositions = {nearest[2], nearest[3]}
+	baseLabel.Text = "Current Base: " .. nearest[1]
 
 	-- Stealing util functionality
 	local currentTween
@@ -273,7 +325,7 @@ showInstantStealPrompt(function(enableInstantSteal)
 		end
 	end)
 
-	-- Base Selector GUI
+	-- Base Selector GUI (creates tracers and lets you pick)
 	chooseBaseBtn.MouseButton1Click:Connect(function()
 		local baseGui = Instance.new("ScreenGui")
 		baseGui.Name = "BaseSelectorGui"
@@ -308,17 +360,6 @@ showInstantStealPrompt(function(enableInstantSteal)
 		title.TextSize = 24
 		title.BackgroundTransparency = 1
 
-		local bases = {
-			{"Base 1", Vector3.new(-124.87, 4.12, -122.90), Vector3.new(-125.94, 3.51, -171.55)},
-			{"Base 2", Vector3.new(-5.61, 4.20, -126.03), Vector3.new(-5.52, 3.85, -171.45)},
-			{"Base 3", Vector3.new(114.14, 2.93, -123.08), Vector3.new(114.14, 2.93, -170.89)},
-			{"Base 4", Vector3.new(234.41, 4.33, -124.25), Vector3.new(234.41, 4.33, -169.55)},
-			{"Base 5", Vector3.new(-124.87,4.12,17.2), Vector3.new(-125.94,3.51,65.64)},
-			{"Base 6", Vector3.new(-5.61,4.20,17.2), Vector3.new(-5.52,3.85,65.64)},
-			{"Base 7", Vector3.new(114.14,2.93,17.2), Vector3.new(114.14,2.93,65.64)},
-			{"Base 8", Vector3.new(234.41,4.33,17.2), Vector3.new(234.41,4.33,65.64)}
-		}
-
 		local baseColors = {
 			Color3.fromRGB(255,0,0),
 			Color3.fromRGB(0,255,0),
@@ -338,6 +379,8 @@ showInstantStealPrompt(function(enableInstantSteal)
 			part.CanCollide = false
 			part.Size = Vector3.new(0.2,0.2,1)
 			part.Color = color
+			part.Material = Enum.Material.Neon
+			part.Transparency = 0
 			part.Parent = Workspace
 			table.insert(tracerObjects,{part=part,target=basePosition})
 		end
@@ -351,9 +394,13 @@ showInstantStealPrompt(function(enableInstantSteal)
 			if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 				local hrpPos = player.Character.HumanoidRootPart.Position
 				for _, t in pairs(tracerObjects) do
-					local distance = (hrpPos - t.target).Magnitude
-					t.part.Size = Vector3.new(0.2,0.2,distance)
-					t.part.CFrame = CFrame.new((hrpPos + t.target)/2, t.target)
+					if t.part and t.target then
+						local distance = (hrpPos - t.target).Magnitude
+						-- avoid zero-size
+						if distance < 0.5 then distance = 0.5 end
+						t.part.Size = Vector3.new(0.2,0.2,distance)
+						t.part.CFrame = CFrame.new((hrpPos + t.target)/2, t.target) * CFrame.new(0,0,-distance/2)
+					end
 				end
 			end
 		end)
@@ -396,15 +443,39 @@ showInstantStealPrompt(function(enableInstantSteal)
 			btnCorner.CornerRadius = UDim.new(0,12)
 
 			btn.MouseButton1Click:Connect(function()
+				-- set base positions to the chosen base
 				basePositions = {info[2],info[3]}
+				-- update the current base label
+				baseLabel.Text = "Current Base: " .. info[1]
+				-- clean up tracer parts and connection
 				for _, t in pairs(tracerObjects) do
-					t.part:Destroy()
+					if t.part then
+						t.part:Destroy()
+					end
 				end
 				tracerObjects = {}
-				tracerConnection:Disconnect()
-				player.Character.HumanoidRootPart.CFrame = CFrame.new(info[2])
+				if tracerConnection and tracerConnection.Disconnect then
+					tracerConnection:Disconnect()
+				elseif tracerConnection and tracerConnection.Connected then
+					tracerConnection:Disconnect()
+				end
+				-- teleport player to the first coordinate of the selected base
+				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+					player.Character.HumanoidRootPart.CFrame = CFrame.new(info[2])
+				end
+				-- remove the base GUI
 				baseGui:Destroy()
 			end)
+		end
+	end)
+
+	--// Re-detect on respawn (runs once after respawn)
+	player.CharacterAdded:Connect(function()
+		task.wait(1)
+		local nearest = getNearestBase()
+		if nearest then
+			basePositions = {nearest[2], nearest[3]}
+			baseLabel.Text = "Current Base: " .. nearest[1]
 		end
 	end)
 end)
